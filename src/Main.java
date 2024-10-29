@@ -12,26 +12,26 @@ public class Main {
         System.out.println("Создаем задачи:\n");
 
         Task task1 = new Task("Просто задача - 1", "Описание простой задачи - 1");
-        manager.addNewTask(task1);
+        int task1Id = manager.addNewTask(task1);
         Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
-        manager.addNewTask(task2);
+        int task2Id = manager.addNewTask(task2);
 
         Epic epic1 = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
-        manager.addNewEpic(epic1);
+        int epic1Id = manager.addNewEpic(epic1);
         Epic epic2 = new Epic("Эпическая задача - 2",
                 "Описание эпической задачи - 2");
-        manager.addNewEpic(epic2);
+        int epic2Id = manager.addNewEpic(epic2);
 
         Subtask subtask1 = new Subtask( "Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epic1.getId());
-        manager.addNewSubtask(subtask1);
+        int subtask1Id = manager.addNewSubtask(subtask1);
         Subtask subtask2 = new Subtask("Подзадача - 2",
 "Описание подзадачи - 2, эпической задачи - 1", epic1.getId());
-        manager.addNewSubtask(subtask2);
+        int subtask2Id = manager.addNewSubtask(subtask2);
         Subtask subtask3 = new Subtask( "Подзадача - 3",
                 "Описание подзадачи - 3, эпической задачи - 2", epic2.getId());
-        manager.addNewSubtask(subtask3);
+        int subtask3Id = manager.addNewSubtask(subtask3);
 
         System.out.println(manager.getAllTasks().toString());
         System.out.println(manager.getAllEpics().toString());
@@ -48,7 +48,7 @@ public class Main {
         System.out.println(manager.getAllSubtasks().toString());
         System.out.println(manager.getAllEpics().toString());
 
-        Epic epic3 = new Epic(epic1.getId(), "Эпическая задача - 3", "Ставим вместо эпической задачи - 1", epic1.getStatus(), epic1.getListOfSubtaskId());
+        Epic epic3 = new Epic(epic1.getId(), "Эпическая задача - 3", "Ставим вместо эпической задачи - 1", epic1.getStatus());
         manager.updateEpic(epic3);
 
         System.out.println(manager.getAllEpics().toString());
@@ -84,26 +84,10 @@ public class Main {
         System.out.println("Удаляем подзадачу - 3, эпической задачи - 2");
         manager.deleteSubtask(subtask3.getId());
         System.out.println(manager.getAllSubtasks().toString() + '\n');
-        System.out.println("Удаляем эпическую задачу - 1");
-        manager.deleteEpic(epic1.getId());
-        System.out.println(manager.getAllEpics().toString());
-        System.out.println(manager.getAllSubtasks().toString() + '\n');
 
-        /*
-        System.out.println("Удаляем все эпические задачи вместе с подзадачами");
-        manager.deleteAllEpics();
-
-        System.out.println(manager.getAllEpics().toString());
+        System.out.println("Удаляем все подзадачи и очищаем списки эпиков");
+        manager.deleteAllSubtasks();
         System.out.println(manager.getAllSubtasks().toString());
-
-        //System.out.println("Удаляем все простые задачи");
-        manager.deleteAllTasks();*/
-
-        //System.out.println(manager.getAllTasks().toString());
-
-        //System.out.println("Удаляем все подзадачи и очищаем эпики");
-        //manager.deleteAllSubtasks();
-        //System.out.println(manager.getAllSubtasks().toString());
-        //System.out.println(manager.getAllEpics().toString());
+        System.out.println(manager.getAllEpics().toString());
     }
 }
