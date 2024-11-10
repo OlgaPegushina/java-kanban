@@ -1,15 +1,12 @@
-package test;
+package service;
 
 import model.Epic;
-import model.Status;
 import model.Subtask;
 import model.Task;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import service.Managers;
-import service.TaskManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +24,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addTaskInHistory() {
+    void addTaskInHistoryTest() {
         final int taskId = manager.addNewTask(task);
 
         manager.getTask(taskId);
@@ -39,7 +36,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addEpicInHistory() {
+    void addEpicInHistoryTest() {
         final int epicId = manager.addNewEpic(epic);
 
         manager.getEpic(epicId);
@@ -51,7 +48,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addSubtaskInHistory() {
+    void addSubtaskInHistoryTest() {
         final int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epicId);
@@ -67,7 +64,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void getHistory() {
+    void getHistoryTest() {
         final int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epicId);

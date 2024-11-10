@@ -1,32 +1,78 @@
-package test;
+package service;
 
 import model.Epic;
 import model.Status;
 import model.Subtask;
-
-import org.junit.jupiter.api.Test;
+import model.Task;
 import org.junit.jupiter.api.BeforeEach;
-import service.Managers;
-import service.TaskManager;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EpicAndSubtaskTest {
+public class TaskManagerTest {
     private TaskManager manager;
+    private Task task;
     private Epic epic;
 
     @BeforeEach
     void setUp() {
+        task = new Task("Просто задача - 1", "Описание простой задачи - 1");
         epic = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
         manager = Managers.getDefault();
     }
 
     @Test
-    void addNewEpic() {
+    void addNewTaskTest() {
+        final int taskId = manager.addNewTask(task);
+        final Task savedTask = manager.getTask(taskId);
+
+        assertNotNull(savedTask, "Задача не найдена.");
+        assertEquals(task, savedTask, "Задачи не совпадают.");
+
+        final List<Task> tasks = manager.getAllTasks();
+
+        assertNotNull(tasks, "Задачи не возвращаются.");
+        assertEquals(1, tasks.size(), "Неверное количество задач.");
+        assertEquals(task, tasks.get(0), "Задачи не совпадают.");
+    }
+
+    @Test
+    void updateTaskTest() {
+        final int taskId = manager.addNewTask(task);
+        final Task savedTask = manager.getTask(taskId);
+
+        savedTask.setStatus(Status.DONE);
+        manager.updateTask(savedTask);
+
+        assertNotNull(savedTask, "Задача не найдена.");
+        assertEquals(task, savedTask, "Задачи не совпадают.");
+        assertEquals(task.getStatus(), savedTask.getStatus(), "Статусы задач не совпадают");
+    }
+
+    @Test
+    void deleteTaskTest() {
+        manager.addNewTask(task);
+        manager.deleteTask(task.getId());
+
+        assertTrue(manager.getAllTasks().isEmpty(), "Задача не удалилась");
+        assertEquals(0, manager.getAllTasks().size(), "Задача не удалилась");
+    }
+
+    @Test
+    void deleteAllTasksTest() {
+        manager.addNewTask(task);
+        manager.addNewTask(task);
+        manager.deleteAllTasks();
+
+        assertTrue(manager.getAllTasks().isEmpty(), "Задачи не удалились");
+        assertEquals(0, manager.getAllTasks().size(), "Задачи не удалились");
+    }
+
+    @Test
+    void addNewEpicTest() {
         final int epicId = manager.addNewEpic(epic);
         final Epic savedEpic = manager.getEpic(epicId);
 
@@ -41,7 +87,7 @@ public class EpicAndSubtaskTest {
     }
 
     @Test
-    void addNewSubtask() {
+    void addNewSubtaskTest() {
         final int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epicId);
@@ -164,4 +210,3 @@ public class EpicAndSubtaskTest {
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Неверный статус IN_PROGRESS");
     }
 }
-
