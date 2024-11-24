@@ -23,13 +23,13 @@ public class Main {
                 "Описание эпической задачи - 2");
         int epic2Id = manager.addNewEpic(epic2);
 
-        Subtask subtask1 = new Subtask( "Подзадача - 1",
+        Subtask subtask1 = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epic1.getId());
         int subtask1Id = manager.addNewSubtask(subtask1);
         Subtask subtask2 = new Subtask("Подзадача - 2",
 "Описание подзадачи - 2, эпической задачи - 1", epic1.getId());
         int subtask2Id = manager.addNewSubtask(subtask2);
-        Subtask subtask3 = new Subtask( "Подзадача - 3",
+        Subtask subtask3 = new Subtask("Подзадача - 3",
                 "Описание подзадачи - 3, эпической задачи - 2", epic2.getId());
         int subtask3Id = manager.addNewSubtask(subtask3);
 
@@ -48,6 +48,7 @@ public class Main {
 
         printAllTasks(manager);
     }
+
     private static void printAllTasks(TaskManager manager) {
         System.out.println("Задачи:");
         for (Task task : manager.getAllTasks()) {
