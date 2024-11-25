@@ -5,6 +5,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -131,7 +132,7 @@ public class InMemoryHistoryManagerTest {
 
         assertNotNull(history, "История не пустая.");
         assertEquals(4, history.size(), "Размер истории не верный");
-        assertEquals(List.of(epic, subtask2, subtask1,epic2), manager.getHistory(), "История не соответствует");
+        assertEquals(List.of(epic, subtask2, subtask1, epic2), manager.getHistory(), "История не соответствует");
     }
 
     @Test
@@ -149,5 +150,19 @@ public class InMemoryHistoryManagerTest {
 
         assertEquals(history.get(0), subtask, "История возвращается неверно");
         assertEquals(history.get(1), epic, "История возвращается неверно");
+    }
+
+    @Test
+    void deleteAllTasksFromHistoryTest() {
+        int taskId1 = manager.addNewTask(task);
+        int taskId2 = manager.addNewTask(task2);
+        manager.getTask(taskId1);
+        manager.getTask(taskId2);
+
+        manager.deleteAllTasks();
+
+        List<Task> history = manager.getHistory();
+
+        assertTrue(history.isEmpty(), "Задачи не удалились");
     }
 }

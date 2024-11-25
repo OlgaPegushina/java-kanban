@@ -5,7 +5,6 @@ import model.Task;
 import service.Managers;
 import service.TaskManager;
 
-
 public class Main {
 
     public static void main(String[] args) {
@@ -15,6 +14,8 @@ public class Main {
         int task1Id = manager.addNewTask(task1);
         Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
         int task2Id = manager.addNewTask(task2);
+        Task task3 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
+        int task3Id = manager.addNewTask(task3);
 
         Epic epic1 = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
@@ -27,26 +28,39 @@ public class Main {
                 "Описание подзадачи - 1, эпической задачи - 1", epic1.getId());
         int subtask1Id = manager.addNewSubtask(subtask1);
         Subtask subtask2 = new Subtask("Подзадача - 2",
-"Описание подзадачи - 2, эпической задачи - 1", epic1.getId());
+                "Описание подзадачи - 2, эпической задачи - 1", epic1.getId());
         int subtask2Id = manager.addNewSubtask(subtask2);
         Subtask subtask3 = new Subtask("Подзадача - 3",
-                "Описание подзадачи - 3, эпической задачи - 2", epic2.getId());
+                "Описание подзадачи - 3, эпической задачи - 1", epic1.getId());
         int subtask3Id = manager.addNewSubtask(subtask3);
 
-        manager.getTask(2);
-        manager.getTask(1);
-        manager.getTask(2);
-        manager.getEpic(4);
-        manager.getSubtask(6);
-        manager.getSubtask(5);
-        manager.getEpic(3);
-        manager.getSubtask(7);
-        manager.getTask(1);
-        manager.getTask(1);
-        manager.getSubtask(6);
-        manager.getSubtask(5);
+        manager.getTask(task2Id);
+        manager.getTask(task1Id);
+        manager.getTask(task2Id);
+        manager.getEpic(epic2Id);
+        manager.getSubtask(subtask2Id);
+        manager.getSubtask(subtask1Id);
+        manager.getEpic(epic1Id);
+        manager.getSubtask(subtask3Id);
+        manager.getTask(task3Id);
+        manager.getTask(task1Id);
+        manager.getSubtask(subtask2Id);
+        manager.getSubtask(subtask1Id);
 
         printAllTasks(manager);
+        printHistory(manager);
+
+        manager.deleteTask(task1Id);
+        System.out.println("\n Удаляем задачу - 1");
+        printHistory(manager);
+
+        manager.deleteEpic(epic1Id);
+        System.out.println("\n Удаляем эпик - 1 с тремя подзадачами");
+        printHistory(manager);
+
+        manager.deleteAllTasks();
+        System.out.println("\n Удаляем все задачи");
+        printHistory(manager);
     }
 
     private static void printAllTasks(TaskManager manager) {
@@ -66,8 +80,10 @@ public class Main {
         for (Task subtask : manager.getAllSubtasks()) {
             System.out.println(subtask);
         }
+    }
 
-        System.out.println("История:");
+    private static void printHistory(TaskManager manager) {
+        System.out.println("\nИстория:");
         for (Task task : manager.getHistory()) {
             System.out.println(task);
         }
