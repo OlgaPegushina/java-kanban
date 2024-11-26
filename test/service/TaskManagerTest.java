@@ -168,13 +168,18 @@ public class TaskManagerTest {
 
     @Test
     void deleteSubtaskTest() {
+        manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epic.getId());
-        int subtaskId = manager.addNewSubtask(subtask);
+        Integer subtaskId = manager.addNewSubtask(subtask);
+
+        assertEquals(1, epic.getSubtaskIds().size(), "ID сабтаски не зарегистрировался у эпика");
+
         manager.deleteSubtask(subtaskId);
 
         assertTrue(manager.getAllSubtasks().isEmpty(), "Сабтаск не удалился");
         assertEquals(0, manager.getAllSubtasks().size(), "Сабтаск не удалился");
+        assertTrue(epic.getSubtaskIds().isEmpty(), "ID сабтаски не удалился из списка у эпика");
     }
 
     @Test
