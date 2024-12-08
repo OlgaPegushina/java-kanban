@@ -16,9 +16,9 @@ public class Epic extends Task {
         this.status = Status.NEW;
     }
 
-   public void addSubtaskId(int subtaskId) {
-       this.subtaskIds.add(subtaskId);
-   }
+    public void addSubtaskId(int subtaskId) {
+        this.subtaskIds.add(subtaskId);
+    }
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
@@ -33,5 +33,10 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public TypeTask getType() {
+        return TypeTask.EPIC;
     }
 }

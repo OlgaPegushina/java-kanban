@@ -14,4 +14,14 @@ public enum Status {
     public String toString() {
         return this.name;
     }
+
+    public Status getName(String name) {
+        Status status = switch (name) {
+            case "Новый" -> NEW;
+            case "В процессе" -> IN_PROGRESS;
+            case "Выполнено" -> DONE;
+            default -> throw new IllegalStateException("Unexpected value: " + name);
+        };
+        return null;
+    }
 }
