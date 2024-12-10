@@ -1,5 +1,7 @@
 package service;
 
+import exception.ManagerLoadException;
+import exception.ManagerSaveException;
 import model.*;
 
 import java.io.*;
@@ -18,7 +20,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File fileAutoSave) {
         if (!Files.exists(fileAutoSave.toPath())) {
-            throw new ManagerSaveException("Файл для чтения не существует");
+            throw new ManagerLoadException("Файл для чтения не существует");
         }
 
         FileBackedTaskManager backedTaskManager = new FileBackedTaskManager(fileAutoSave);
@@ -34,7 +36,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 backedTaskManager.addTaskFromFile(task);
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка чтения файла");
+            throw new ManagerLoadException("Ошибка чтения файла");
         }
         return backedTaskManager;
     }
@@ -114,13 +116,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    @Override
-    public void updateStatusEpic(int epicId) {
-        super.updateStatusEpic(epicId);
-        save();
-    }
-
-    private void addTaskFromFile(Task task) throws ManagerSaveException {
+    private void addTaskFromFile(Task task) {
         if (super.id < task.getId()) {
             super.id = task.getId();
         }
@@ -135,15 +131,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 subtasks.put(subtask.getId(), subtask);
                 epic.addSubtaskId(subtask.getId());
             } else {
-                throw new ManagerSaveException("В файле находятся неверные данные по подзадачам. " +
-                        "Нет соответсвия для Эпика. Восстановление из файла невозможно");
+                throw new ManagerLoadException("В файле находятся неверные данные по подзадачам. " +
+                        "Нет соответствия для Эпика. Восстановление из файла невозможно");
             }
         } else {
             tasks.put(task.getId(), task);
         }
     }
 
-    public String taskToString(Task task) {
+    private String taskToString(Task task) {
         final StringBuilder sb = new StringBuilder();
 
         sb.append(task.getId()).append(',').append(task.getType()).append(',').append(task.getTitle());
@@ -156,7 +152,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return sb.toString();
     }
 
-    private void save() throws ManagerSaveException {
+    private void save() {
         if (!Files.exists(fileAutoSave.toPath())) {
             throw new ManagerSaveException("Файл для записи не существует!");
         }
@@ -174,12 +170,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка в методе save()");
+            throw new ManagerSaveException("Ошибка записи в методе save()");
         }
     }
 
 
-    public Task taskFromString(String value) {
+    private Task taskFromString(String value) {
         Task res = null;
         String[] data = value.split(",");
         Status status = switch (data[3]) {
@@ -188,11 +184,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             case "Выполнено" -> Status.DONE;
             default -> throw new IllegalStateException("Unexpected value: " + data[3]);
         };
-        if (TypeTask.SUBTASK.equals(TypeTask.valueOf(data[1]))) {
+
+        TypeTask typeTask = TypeTask.valueOf(data[1]);
+
+        if (TypeTask.SUBTASK.equals(typeTask)) {
             res = new Subtask(Integer.parseInt(data[0]), data[2], data[4], status, Integer.parseInt(data[5]));
-        } else if (TypeTask.EPIC.equals(TypeTask.valueOf(data[1]))) {
+        } else if (TypeTask.EPIC.equals(typeTask)) {
             res = new Epic(Integer.parseInt(data[0]), data[2], data[4], status);
-        } else if (TypeTask.TASK.equals(TypeTask.valueOf(data[1]))) {
+        } else if (TypeTask.TASK.equals(typeTask)) {
             res = new Task(Integer.parseInt(data[0]), data[2], data[4], status);
         }
         return res;

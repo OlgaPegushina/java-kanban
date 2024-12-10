@@ -19,22 +19,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTaskManagerTest {
     private FileBackedTaskManager fileBackedTaskManager;
     private Task task;
-    private Task task2;
     private Epic epic;
-    private Epic epic2;
     private File file;
 
     @BeforeEach
     void setUp() throws IOException {
-        Path path = Files.createTempFile("file_auto", ".csv");
+        Path path = Files.createTempFile("file_auto-", ".csv");
         file = new File(String.valueOf(path));
         fileBackedTaskManager = new FileBackedTaskManager(file);
         task = new Task("Просто задача - 1", "Описание простой задачи - 1");
-        task2 = new Task("Просто задача - 2", "Описание простой задачи - 2");
         epic = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
-        epic2 = new Epic("Эпическая задача - 2",
-                "Описание эпической задачи - 2");
     }
 
     @Test
@@ -54,21 +49,49 @@ class FileBackedTaskManagerTest {
 
     @Test
     void loadFromFileTest() {
-        fileBackedTaskManager.addNewTask(task);
-        fileBackedTaskManager.addNewTask(task2);
-        FileBackedTaskManager backedTaskManager2 = FileBackedTaskManager.loadFromFile(file);
-        final List<Task> tasks = backedTaskManager2.getAllTasks();
+        final int taskId = fileBackedTaskManager.addNewTask(task);
+        final int epicId = fileBackedTaskManager.addNewEpic(epic);
+        final Subtask subtask = new Subtask("Подзадача - 1",
+                "Описание подзадачи - 1 эпической задачи - 1", epicId);
+        final int subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
 
-        assertEquals(2, tasks.size(), "Количество задач не верное");
-        assertEquals(List.of(task, task2), tasks, "Задачи не соответствует");
+        final FileBackedTaskManager backedTaskManager2 = FileBackedTaskManager.loadFromFile(file);
+        final Task taskLoad = backedTaskManager2.getTask(taskId);
+        final Epic epicLoad = backedTaskManager2.getEpic(epicId);
+        final Subtask subtaskLoad = backedTaskManager2.getSubtask(subtaskId);
+
+        assertEquals(task.getId(), taskLoad.getId(), "ID задач не совпадают");
+        assertEquals(task.getType(), taskLoad.getType(), "Типы задач не совпадают");
+        assertEquals(task.getTitle(), taskLoad.getTitle(), "Title задач не совпадают");
+        assertEquals(task.getDescription(), taskLoad.getDescription(), "Описания задач не совпадают");
+        assertEquals(task.getStatus(), taskLoad.getStatus(), "Статусы задач не совпадают");
+
+        assertEquals(epic.getId(), epicLoad.getId(), "ID эпиков не совпадают");
+        assertEquals(epic.getType(), epicLoad.getType(), "Типы эпиков не совпадают");
+        assertEquals(epic.getTitle(), epicLoad.getTitle(), "Title эпиков не совпадают");
+        assertEquals(epic.getDescription(), epicLoad.getDescription(), "Описания эпиков не совпадают");
+        assertEquals(epic.getStatus(), epicLoad.getStatus(), "Статусы эпиков не совпадают");
+        assertEquals(epic.getSubtaskIds(), epicLoad.getSubtaskIds(), "ID подзадач у эпиков не совпадают");
+
+        assertEquals(subtask.getId(), subtaskLoad.getId(), "ID подзадач не совпадают");
+        assertEquals(subtask.getType(), subtaskLoad.getType(), "Типы подзадач не совпадают");
+        assertEquals(subtask.getTitle(), subtaskLoad.getTitle(), "Title подзадач не совпадают");
+        assertEquals(subtask.getDescription(), subtaskLoad.getDescription(), "Описания подзадач не совпадают");
+        assertEquals(subtask.getStatus(), subtaskLoad.getStatus(), "Статусы подзадач не совпадают");
+        assertEquals(subtask.getEpicId(), subtaskLoad.getEpicId(), "ID эпиков у подзадач не совпадают");
     }
 
     @Test
     void loadFromEmptyFileTest() {
         FileBackedTaskManager backedTaskManager2 = FileBackedTaskManager.loadFromFile(file);
         final List<Task> tasks = backedTaskManager2.getAllTasks();
+        final List<Epic> epics = backedTaskManager2.getAllEpics();
+        final List<Subtask> subtasks = backedTaskManager2.getAllSubtasks();
 
         assertEquals(0, tasks.size(), "Количество задач не верное");
+        assertEquals(0, epics.size(), "Количество эпиков не верное");
+        assertEquals(0, subtasks.size(), "Количество подзадач не верное");
+
     }
 
     @Test
@@ -121,23 +144,23 @@ class FileBackedTaskManagerTest {
     @Test
     void addNewSubtaskTest() {
         final int epicId = fileBackedTaskManager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Подзадача - 1",
+        final Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epicId);
-        int subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
+        final int subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
         final Subtask savedSubtask = fileBackedTaskManager.getSubtask(subtaskId);
 
-        assertNotNull(savedSubtask, "Сабтаск не найдена.");
-        assertEquals(subtask, savedSubtask, "Сабтаски не совпадают.");
+        assertNotNull(savedSubtask, "Подзадача не найдена.");
+        assertEquals(subtask, savedSubtask, "Подзадачи не совпадают.");
 
         final int savedEpicId = savedSubtask.getEpicId();
 
-        assertEquals(subtask.getEpicId(), savedEpicId, "Епики у сабтасок не совпадают.");
+        assertEquals(subtask.getEpicId(), savedEpicId, "Эпики у подзадач не совпадают.");
 
         final List<Subtask> subtasks = fileBackedTaskManager.getAllSubtasks();
 
-        assertNotNull(subtasks, "Сабтаски не возвращаются.");
-        assertEquals(1, subtasks.size(), "Неверное количество Сабтасков.");
-        assertEquals(subtask, subtasks.get(0), "Сабтаски не совпадают.");
+        assertNotNull(subtasks, "Подзадачи не возвращаются.");
+        assertEquals(1, subtasks.size(), "Неверное количество подзадач.");
+        assertEquals(subtask, subtasks.get(0), "Подзадачи не совпадают.");
     }
 
     @Test
@@ -147,7 +170,7 @@ class FileBackedTaskManagerTest {
         Epic epic2 = new Epic(epic.getId(), "Эпическая задача - 2", "Ставим вместо эпической задачи - 1", epic.getStatus());
         fileBackedTaskManager.updateEpic(epic2);
 
-        assertNotNull(savedEpic, "Эпик не найдена.");
+        assertNotNull(savedEpic, "Эпик не найден.");
         assertEquals(epic2, savedEpic, "Эпики не совпадают.");
 
         final List<Epic> epics = fileBackedTaskManager.getAllEpics();
@@ -159,24 +182,24 @@ class FileBackedTaskManagerTest {
 
     @Test
     void updateSubtaskAndEpicTest() {
-        int epicId = fileBackedTaskManager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Подзадача - 1",
+        final int epicId = fileBackedTaskManager.addNewEpic(epic);
+        final Subtask subtask = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", epicId);
-        int subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
+        final int subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
         final Subtask savedSubtask = fileBackedTaskManager.getSubtask(subtaskId);
 
         savedSubtask.setStatus(Status.DONE);
         fileBackedTaskManager.updateSubtask(subtask);
 
-        assertNotNull(savedSubtask, "Сабтаск не найдена.");
-        assertEquals(subtask, savedSubtask, "Сабтаски не совпадают.");
+        assertNotNull(savedSubtask, "Подзадачи не найдена.");
+        assertEquals(subtask, savedSubtask, "Подзадачи не совпадают.");
 
         final List<Subtask> subtasks = fileBackedTaskManager.getAllSubtasks();
 
-        assertNotNull(subtasks, "Сабтаски на возвращаются.");
-        assertEquals(1, subtasks.size(), "Неверное количество сабтаск.");
-        assertEquals(subtask, subtasks.get(0), "Сабтаски не совпадают.");
-        assertEquals(fileBackedTaskManager.getEpic(epicId).getStatus(), savedSubtask.getStatus(), "Статусы сабтасков не совпадают");
+        assertNotNull(subtasks, "Подзадачи на возвращаются.");
+        assertEquals(1, subtasks.size(), "Неверное количество подзадач.");
+        assertEquals(subtask, subtasks.get(0), "Подзадачи не совпадают.");
+        assertEquals(fileBackedTaskManager.getEpic(epicId).getStatus(), savedSubtask.getStatus(), "Статусы подзадач не совпадают");
     }
 
     @Test
@@ -205,13 +228,13 @@ class FileBackedTaskManagerTest {
                 "Описание подзадачи - 1, эпической задачи - 1", epic.getId());
         Integer subtaskId = fileBackedTaskManager.addNewSubtask(subtask);
 
-        assertEquals(1, epic.getSubtaskIds().size(), "ID сабтаски не зарегистрировался у эпика");
+        assertEquals(1, epic.getSubtaskIds().size(), "ID подзадачи не зарегистрировался у эпика");
 
         fileBackedTaskManager.deleteSubtask(subtaskId);
 
-        assertTrue(fileBackedTaskManager.getAllSubtasks().isEmpty(), "Сабтаск не удалился");
-        assertEquals(0, fileBackedTaskManager.getAllSubtasks().size(), "Сабтаск не удалился");
-        assertTrue(epic.getSubtaskIds().isEmpty(), "ID сабтаски не удалился из списка у эпика");
+        assertTrue(fileBackedTaskManager.getAllSubtasks().isEmpty(), "Подзадача не удалилася");
+        assertEquals(0, fileBackedTaskManager.getAllSubtasks().size(), "Подзадача не удалилася");
+        assertTrue(epic.getSubtaskIds().isEmpty(), "ID подзадачи не удалился из списка у эпика");
     }
 
     @Test
@@ -222,8 +245,8 @@ class FileBackedTaskManagerTest {
         fileBackedTaskManager.addNewSubtask(subtask);
         fileBackedTaskManager.deleteAllSubtasks();
 
-        assertTrue(fileBackedTaskManager.getAllSubtasks().isEmpty(), "Сабтаски не удалилися");
-        assertEquals(0, fileBackedTaskManager.getAllSubtasks().size(), "Сабтаски не удалилися");
+        assertTrue(fileBackedTaskManager.getAllSubtasks().isEmpty(), "Подзадачи не удалилися");
+        assertEquals(0, fileBackedTaskManager.getAllSubtasks().size(), "Подзадачи не удалилися");
     }
 
     @Test
