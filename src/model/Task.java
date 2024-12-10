@@ -21,6 +21,9 @@ public class Task {
         this.status = Status.NEW;
     }
 
+    public Task() {
+    }
+
     public int getId() {
         return id;
     }
@@ -74,5 +77,9 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public TypeTask getType() {
+        return TypeTask.TASK;
     }
 }

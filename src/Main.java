@@ -14,7 +14,7 @@ public class Main {
         int task1Id = manager.addNewTask(task1);
         Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
         int task2Id = manager.addNewTask(task2);
-        Task task3 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
+        Task task3 = new Task("Просто Задача - 3", "Описание простой задачи - 3");
         int task3Id = manager.addNewTask(task3);
 
         Epic epic1 = new Epic("Эпическая задача - 1",
