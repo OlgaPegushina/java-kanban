@@ -15,13 +15,12 @@ public enum Status {
         return this.name;
     }
 
-    public Status getName(String name) {
-        Status status = switch (name) {
+    public static Status getName(String name) {
+        return switch (name) {
             case "Новый" -> NEW;
             case "В процессе" -> IN_PROGRESS;
             case "Выполнено" -> DONE;
             default -> throw new IllegalStateException("Unexpected value: " + name);
         };
-        return null;
     }
 }

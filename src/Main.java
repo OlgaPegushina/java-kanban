@@ -1,20 +1,25 @@
 import model.Epic;
 import model.Subtask;
 import model.Task;
-
 import service.Managers;
 import service.TaskManager;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
     public static void main(String[] args) {
         TaskManager manager = Managers.getDefault();
 
-        Task task1 = new Task("Просто задача - 1", "Описание простой задачи - 1");
+        Task task1 = new Task("Просто задача - 1", "Описание простой задачи - 1",
+                LocalDateTime.of(2024, 10, 1, 10, 0), Duration.ofHours(2));
         int task1Id = manager.addNewTask(task1);
-        Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2");
+        Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2",
+                LocalDateTime.of(2024, 10, 1, 1, 0), Duration.ofHours(2));
         int task2Id = manager.addNewTask(task2);
-        Task task3 = new Task("Просто Задача - 3", "Описание простой задачи - 3");
+        Task task3 = new Task("Просто Задача - 3", "Описание простой задачи - 3",
+                LocalDateTime.of(2024, 10, 1, 6, 0), Duration.ofHours(2));
         int task3Id = manager.addNewTask(task3);
 
         Epic epic1 = new Epic("Эпическая задача - 1",
@@ -25,13 +30,16 @@ public class Main {
         int epic2Id = manager.addNewEpic(epic2);
 
         Subtask subtask1 = new Subtask("Подзадача - 1",
-                "Описание подзадачи - 1, эпической задачи - 1", epic1.getId());
+                "Описание подзадачи - 1 эпической задачи - 1", LocalDateTime.of(2024, 10,
+                1, 3, 30), Duration.ofHours(2), epic1.getId());
         int subtask1Id = manager.addNewSubtask(subtask1);
         Subtask subtask2 = new Subtask("Подзадача - 2",
-                "Описание подзадачи - 2, эпической задачи - 1", epic1.getId());
+                "Описание подзадачи - 2 эпической задачи - 1", LocalDateTime.of(2024, 10,
+                1, 0, 0), Duration.ofHours(1), epic1.getId());
         int subtask2Id = manager.addNewSubtask(subtask2);
         Subtask subtask3 = new Subtask("Подзадача - 3",
-                "Описание подзадачи - 3, эпической задачи - 1", epic1.getId());
+                "Описание подзадачи - 3 эпической задачи - 2", LocalDateTime.of(2024, 10,
+                1, 9, 0), Duration.ofHours(1), epic2.getId());
         int subtask3Id = manager.addNewSubtask(subtask3);
 
         manager.getTask(task2Id);

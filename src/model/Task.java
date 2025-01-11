@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,6 +9,8 @@ public class Task {
     protected String title;
     protected String description;
     protected Status status;
+    protected Duration duration = Duration.ZERO;
+    protected LocalDateTime startTime;
 
     public Task(int id, String title, String description, Status status) {
         this.id = id;
@@ -22,6 +26,23 @@ public class Task {
     }
 
     public Task() {
+    }
+
+    public Task(String title, String description, LocalDateTime startTime, Duration duration) {
+        this.title = title;
+        this.description = description;
+        this.status = Status.NEW;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
+    public Task(int id, String title, String description, Status status, LocalDateTime startTime, Duration duration) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public int getId() {
@@ -63,6 +84,9 @@ public class Task {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
+                ", endTime=" + getEndTime() +
                 '}';
     }
 
@@ -81,5 +105,25 @@ public class Task {
 
     public TypeTask getType() {
         return TypeTask.TASK;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return (startTime == null) ? null : startTime.plus(duration);
     }
 }
