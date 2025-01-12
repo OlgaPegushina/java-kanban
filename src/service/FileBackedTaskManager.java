@@ -171,7 +171,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         try (Writer fileWriter = new FileWriter(fileAutoSave, StandardCharsets.UTF_8)) {
-            fileWriter.write("id,type,name,status,description,startTime,duration,,endTime,epicId\n");
+            fileWriter.write("id,type,name,status,description,startTime,duration,endTime,epicId\n");
             for (Task task : getAllTasks()) {
                 fileWriter.write(taskToString(task) + "\n");
             }

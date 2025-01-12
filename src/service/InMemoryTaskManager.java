@@ -146,10 +146,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void addSortedAfterUpdateTask(Task task) {
-        sortedTaskByTime.remove(task);
         if (task.getStartTime() != null) {
             validateTaskPriority(task);
+            sortedTaskByTime.remove(task);
             sortedTaskByTime.add(task);
+        } else {
+            sortedTaskByTime.remove(task);
         }
     }
 
@@ -294,6 +296,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected void validateTaskPriority(Task task) {
         if (task.getStartTime() != null) {
             boolean isValidate = sortedTaskByTime.stream()
+                    .filter(sortedTask -> !sortedTask.equals(task))
                     .anyMatch(sortedTask -> task.getStartTime().isBefore(sortedTask.getEndTime()) && task.getEndTime().isAfter(sortedTask.getStartTime()));
             if (isValidate) {
                 System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");
