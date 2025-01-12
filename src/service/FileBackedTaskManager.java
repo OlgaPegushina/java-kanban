@@ -131,14 +131,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             Epic epic = epics.get(idEpic);
 
             if (epic != null) {
+                validateTaskPriority(subtask);
+                sortedTaskByTime.add(subtask);
                 subtasks.put(subtask.getId(), subtask);
                 epic.addSubtaskId(subtask.getId());
-                //////
             } else {
                 throw new ManagerLoadException("В файле находятся неверные данные по подзадачам. " +
                         "Нет соответствия для Эпика. Восстановление из файла невозможно");
             }
         } else {
+            validateTaskPriority(task);
+            sortedTaskByTime.add(task);
             tasks.put(task.getId(), task);
         }
     }
@@ -149,14 +152,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         sb.append(task.getId()).append(',').append(task.getType()).append(',').append(task.getTitle());
         sb.append(',').append(task.getStatus()).append(',').append(task.getDescription()).append(',');
-        sb.append(task.getStartTime()).append(',').append(minutes).append(',');
+        sb.append(task.getStartTime()).append(',').append(minutes).append(',').append(task.getEndTime()).append(',');
 
         if (task instanceof Subtask subtask) {
             sb.append(subtask.getEpicId());
-        }
-
-        if (task instanceof Epic epic) {
-            sb.append(epic.getEndTime());
         }
 
         return sb.toString();
@@ -168,7 +167,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         try (Writer fileWriter = new FileWriter(fileAutoSave, StandardCharsets.UTF_8)) {
-            fileWriter.write("id,type,name,status,description,startTime,duration,epicId,endTime\n");
+            fileWriter.write("id,type,name,status,description,startTime,duration,,endTime,epicId\n");
             for (Task task : getAllTasks()) {
                 fileWriter.write(taskToString(task) + "\n");
             }
@@ -190,16 +189,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String[] data = value.split(",");
         Status status = Status.getName(data[3]);
         LocalDateTime startDateTime = (Objects.equals(data[5], "null")) ? null : LocalDateTime.parse(data[5]);
+        LocalDateTime endDateTime = (Objects.equals(data[7], "null")) ? null : LocalDateTime.parse(data[7]);
         long minutes = Long.parseLong(data[6]);
 
         TypeTask typeTask = TypeTask.valueOf(data[1]);
 
         if (TypeTask.SUBTASK.equals(typeTask)) {
             res = new Subtask(Integer.parseInt(data[0]), data[2], data[4], status, startDateTime,
-                    Duration.ofMinutes(minutes), Integer.parseInt(data[7]));
+                    Duration.ofMinutes(minutes), Integer.parseInt(data[8]));
         } else if (TypeTask.EPIC.equals(typeTask)) {
             res = new Epic(Integer.parseInt(data[0]), data[2], data[4], status, startDateTime,
-                    Duration.ofMinutes(minutes), (Objects.equals(data[7], "null")) ? null : LocalDateTime.parse(data[7]));
+                    Duration.ofMinutes(minutes), endDateTime);
         } else if (TypeTask.TASK.equals(typeTask)) {
             res = new Task(Integer.parseInt(data[0]), data[2], data[4], status, startDateTime,
                     Duration.ofMinutes(minutes));
@@ -245,8 +245,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         backedTaskManager.deleteTask(task2.getId());
         backedTaskManager.getSubtask(subtask3.getId()).setStatus(Status.DONE);
-        System.out.println("Отсортированный список:\n" + backedTaskManager.getPrioritizedTasks());
         backedTaskManager.updateSubtask(subtask3);
+
+        System.out.println("Отсортированный список 1:\n" + backedTaskManager.getPrioritizedTasks());
 
         Path path2 = Paths.get("file_auto_save_task.csv");
         File file2 = new File(String.valueOf(path2));
@@ -261,5 +262,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         System.out.println(backedTaskManager2.getAllEpics());
         System.out.println("Подзадачи");
         System.out.println(backedTaskManager2.getAllSubtasks());
+
+        System.out.println("Отсортированный список 2:\n" + backedTaskManager2.getPrioritizedTasks());
     }
 }

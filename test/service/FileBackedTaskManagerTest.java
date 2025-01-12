@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static service.FileBackedTaskManager.loadFromFile;
 
-public class NewFileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBackedTaskManager> {
+public class FileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBackedTaskManager> {
     private File file;
 
     @BeforeEach
@@ -80,8 +80,9 @@ public class NewFileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBa
         assertEquals(epic.getDescription(), epicLoad.getDescription(), "Описания эпиков не совпадают");
         assertEquals(epic.getStatus(), epicLoad.getStatus(), "Статусы эпиков не совпадают");
         assertEquals(epic.getSubtaskIds(), epicLoad.getSubtaskIds(), "ID подзадач у эпиков не совпадают");
-        assertEquals(epic.getDuration(), epicLoad.getDuration(), "Duration задач не совпадают");
-        assertEquals(epic.getStartTime(), epicLoad.getStartTime(), "StartTime задач не совпадают");
+        assertEquals(epic.getDuration(), epicLoad.getDuration(), "Duration эпиков не совпадают");
+        assertEquals(epic.getStartTime(), epicLoad.getStartTime(), "StartTime эпиков не совпадают");
+        assertEquals(epic.getEndTime(), epicLoad.getEndTime(), "EndTime эпиков не совпадают");
 
         assertEquals(subtask.getId(), subtaskLoad.getId(), "ID подзадач не совпадают");
         assertEquals(subtask.getType(), subtaskLoad.getType(), "Типы подзадач не совпадают");
@@ -89,8 +90,8 @@ public class NewFileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBa
         assertEquals(subtask.getDescription(), subtaskLoad.getDescription(), "Описания подзадач не совпадают");
         assertEquals(subtask.getStatus(), subtaskLoad.getStatus(), "Статусы подзадач не совпадают");
         assertEquals(subtask.getEpicId(), subtaskLoad.getEpicId(), "ID эпиков у подзадач не совпадают");
-        assertEquals(subtask.getDuration(), subtaskLoad.getDuration(), "Duration задач не совпадают");
-        assertEquals(subtask.getStartTime(), subtaskLoad.getStartTime(), "StartTime задач не совпадают");
+        assertEquals(subtask.getDuration(), subtaskLoad.getDuration(), "Duration подзадач не совпадают");
+        assertEquals(subtask.getStartTime(), subtaskLoad.getStartTime(), "StartTime подзадач не совпадают");
     }
 
     @Test

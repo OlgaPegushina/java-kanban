@@ -52,7 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllTasks() {
         deleteAllTasksFromHistory(tasks);
-        tasks.keySet().forEach(taskId -> sortedTaskByTime.removeIf(task -> task.getId() == taskId));
+        sortedTaskByTime.removeAll(tasks.values());
         tasks.clear();
     }
 
@@ -61,18 +61,18 @@ public class InMemoryTaskManager implements TaskManager {
         deleteAllTasksFromHistory(subtasks);
 
         epics.values().forEach(epic -> {
-            List<Integer> subtaskIds = new ArrayList<>(epic.getSubtaskIds());
-            sortedTaskByTime.removeIf(task -> subtaskIds.contains(task.getId()));
             epic.getSubtaskIds().clear();
             updateStatusEpic(epic.getId());
             updateDurationTimeEpic(epic);
         });
+        sortedTaskByTime.removeAll(subtasks.values());
         subtasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
         deleteAllTasksFromHistory(subtasks);
+        sortedTaskByTime.removeAll(subtasks.values());
         subtasks.clear();
         deleteAllTasksFromHistory(epics);
         epics.clear();
@@ -149,15 +149,18 @@ public class InMemoryTaskManager implements TaskManager {
         return -1;
     }
 
+    private void addSortedAfterUpdateTask(Task task) {
+        if (task.getStartTime() != null) {
+            sortedTaskByTime.remove(task);
+            validateTaskPriority(task);
+            sortedTaskByTime.add(task);
+        }
+    }
+
     @Override
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getId())) {
-
-            if (task.getStartTime() != null) {
-                validateTaskPriority(task);
-                sortedTaskByTime.add(task);
-            }
-
+            addSortedAfterUpdateTask(task);
             tasks.put(task.getId(), task);
         }
     }
@@ -165,12 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
-
-            if (subtask.getStartTime() != null) {
-                validateTaskPriority(subtask);
-                sortedTaskByTime.add(subtask);
-            }
-
+            addSortedAfterUpdateTask(subtask);
             int epicId = subtask.getEpicId();
             subtasks.put(subtask.getId(), subtask);
             updateStatusEpic(epicId);
@@ -189,9 +187,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
-        inMemoryHistoryManager.removeFromHistory(id);
-        sortedTaskByTime.removeIf(task -> task.getId() == id);
-        tasks.remove(id);
+        if (tasks.containsKey(id)) {
+            inMemoryHistoryManager.removeFromHistory(id);
+            sortedTaskByTime.remove(tasks.get(id));
+            tasks.remove(id);
+        }
     }
 
     @Override
@@ -199,7 +199,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtasks.containsKey(id)) {
             int epicId = subtasks.get(id).getEpicId();
             Epic epic = epics.get(epicId);
-            sortedTaskByTime.removeIf(task -> task.getId() == id);
+            sortedTaskByTime.remove(subtasks.get(id));
             epic.getSubtaskIds().remove(id);
             inMemoryHistoryManager.removeFromHistory(id);
             subtasks.remove(id);
@@ -295,9 +295,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // проверка на пересечение
-    private void validateTaskPriority(Task task) {
+    protected void validateTaskPriority(Task task) {
         boolean isValidate = sortedTaskByTime.stream()
-                .filter(sortedTask -> !sortedTask.equals(task))
                 .anyMatch(sortedTask -> task.getStartTime().isBefore(sortedTask.getEndTime()) && task.getEndTime().isAfter(sortedTask.getStartTime()));
         if (isValidate) {
             System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");

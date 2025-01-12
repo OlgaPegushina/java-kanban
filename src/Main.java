@@ -1,4 +1,5 @@
 import model.Epic;
+import model.Status;
 import model.Subtask;
 import model.Task;
 import service.Managers;
@@ -41,6 +42,11 @@ public class Main {
                 "Описание подзадачи - 3 эпической задачи - 2", LocalDateTime.of(2024, 10,
                 1, 9, 0), Duration.ofHours(1), epic2.getId());
         int subtask3Id = manager.addNewSubtask(subtask3);
+        Subtask subtask4 = new Subtask("Подзадача - 4",
+                "Описание подзадачи - 4 эпической задачи - 2", epic2.getId());
+        int subtask4Id = manager.addNewSubtask(subtask4);
+        subtask4.setStatus(Status.IN_PROGRESS);
+        manager.updateSubtask(subtask4);
 
         manager.getTask(task2Id);
         manager.getTask(task1Id);
@@ -58,6 +64,9 @@ public class Main {
         printAllTasks(manager);
         printHistory(manager);
 
+        System.out.println("\n Отсортированный список начальный:\n");
+        System.out.println(manager.getPrioritizedTasks());
+
         manager.deleteTask(task1Id);
         System.out.println("\n Удаляем задачу - 1");
         printHistory(manager);
@@ -69,6 +78,18 @@ public class Main {
         manager.deleteAllTasks();
         System.out.println("\n Удаляем все задачи");
         printHistory(manager);
+
+        System.out.println("\n Отсортированный список после удалений:\n");
+        System.out.println(manager.getPrioritizedTasks());
+
+        subtask4.setDuration(Duration.ofHours(3));
+        subtask4.setStartTime(LocalDateTime.of(2024, 9,
+                1, 3, 45));
+        manager.updateSubtask(subtask4);
+
+        System.out.println("\n Отсортированный список после update duration и startTime:\n");
+        System.out.println(manager.getPrioritizedTasks());
+        printAllTasks(manager);
     }
 
     private static void printAllTasks(TaskManager manager) {
