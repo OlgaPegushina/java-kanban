@@ -150,8 +150,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void addSortedAfterUpdateTask(Task task) {
+        sortedTaskByTime.remove(task);
         if (task.getStartTime() != null) {
-            sortedTaskByTime.remove(task);
             validateTaskPriority(task);
             sortedTaskByTime.add(task);
         }

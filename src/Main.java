@@ -87,6 +87,10 @@ public class Main {
                 1, 3, 45));
         manager.updateSubtask(subtask4);
 
+        subtask3.setDuration(null);
+        subtask3.setStartTime(null);
+        manager.updateSubtask(subtask3);
+
         System.out.println("\n Отсортированный список после update duration и startTime:\n");
         System.out.println(manager.getPrioritizedTasks());
         printAllTasks(manager);
