@@ -5,7 +5,6 @@ import model.Epic;
 import model.Status;
 import model.Subtask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,9 +23,6 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
 
     @BeforeEach
     public abstract void setUp() throws IOException;
-
-    @AfterEach
-    public abstract void finish();
 
     @Test
     public void addNewTaskTest() {
@@ -144,7 +140,9 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
     @Test
     void deleteAllTasksTest() {
         taskManager.addNewTask(task);
-        taskManager.addNewTask(task);
+        Task task2 = new Task("Просто задача - 2", "Описание простой задачи - 2",
+                LocalDateTime.of(2024, 9, 1, 10, 0), Duration.ofHours(2));
+        taskManager.addNewTask(task2);
         taskManager.deleteAllTasks();
 
         assertTrue(taskManager.getAllTasks().isEmpty(), "Задачи не удалились");

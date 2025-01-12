@@ -5,15 +5,15 @@ import exception.ManagerSaveException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,18 +26,14 @@ public class FileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBacke
     @BeforeEach
     @Override
     public void setUp() throws IOException {
-        Path path = Files.createTempFile("file_auto-", ".csv");
+        Path path = Paths.get("file_auto_save_task_test.csv");
+
         file = new File(String.valueOf(path));
         taskManager = new FileBackedTaskManager(file);
-        task = new Task("Просто задача - 1", "Описание простой задачи - 1");
+        task = new Task("Просто задача - 1", "Описание простой задачи - 1",
+                LocalDateTime.of(2024, 10, 1, 10, 0), Duration.ofHours(2));
         epic = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
-    }
-
-    @AfterEach
-    @Override
-    public void finish() {
-        file.deleteOnExit();
     }
 
     @Test
@@ -58,7 +54,8 @@ public class FileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBacke
         final int taskId = taskManager.addNewTask(task);
         final int epicId = taskManager.addNewEpic(epic);
         final Subtask subtask = new Subtask("Подзадача - 1",
-                "Описание подзадачи - 1 эпической задачи - 1", epicId);
+                "Описание подзадачи - 1 эпической задачи - 1", LocalDateTime.of(2024, 10,
+                1, 3, 30), Duration.ofHours(2), epic.getId());
         final int subtaskId = taskManager.addNewSubtask(subtask);
 
         final FileBackedTaskManager backedTaskManager2 = loadFromFile(file);

@@ -296,11 +296,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     // проверка на пересечение
     protected void validateTaskPriority(Task task) {
-        boolean isValidate = sortedTaskByTime.stream()
-                .anyMatch(sortedTask -> task.getStartTime().isBefore(sortedTask.getEndTime()) && task.getEndTime().isAfter(sortedTask.getStartTime()));
-        if (isValidate) {
-            System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");
-            throw new ManagerValidatePriority("Задача пересекается по времени с уже существующими. Её выполнение невозможно!");
+        if (task.getStartTime() != null) {
+            boolean isValidate = sortedTaskByTime.stream()
+                    .anyMatch(sortedTask -> task.getStartTime().isBefore(sortedTask.getEndTime()) && task.getEndTime().isAfter(sortedTask.getStartTime()));
+            if (isValidate) {
+                System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");
+                throw new ManagerValidatePriority("Задача пересекается по времени с уже существующими. Её выполнение невозможно!");
+            }
         }
     }
 }

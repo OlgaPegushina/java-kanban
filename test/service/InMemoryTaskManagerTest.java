@@ -2,7 +2,6 @@ package service;
 
 import model.Epic;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 public class InMemoryTaskManagerTest extends AbstractTaskManagerTest<InMemoryTaskManager> {
@@ -13,12 +12,6 @@ public class InMemoryTaskManagerTest extends AbstractTaskManagerTest<InMemoryTas
         task = new Task("Просто задача - 1", "Описание простой задачи - 1");
         epic = new Epic("Эпическая задача - 1",
                 "Описание эпической задачи - 1");
-    }
-
-    @AfterEach
-    @Override
-    public void finish() {
-
     }
 }
 

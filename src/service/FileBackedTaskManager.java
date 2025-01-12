@@ -131,8 +131,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             Epic epic = epics.get(idEpic);
 
             if (epic != null) {
-                validateTaskPriority(subtask);
-                sortedTaskByTime.add(subtask);
+                if (subtask.getStartTime() != null) {
+                    validateTaskPriority(subtask);
+                    sortedTaskByTime.add(subtask);
+                }
                 subtasks.put(subtask.getId(), subtask);
                 epic.addSubtaskId(subtask.getId());
             } else {
@@ -140,8 +142,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         "Нет соответствия для Эпика. Восстановление из файла невозможно");
             }
         } else {
-            validateTaskPriority(task);
-            sortedTaskByTime.add(task);
+            if (task.getStartTime() != null) {
+                validateTaskPriority(task);
+                sortedTaskByTime.add(task);
+            }
             tasks.put(task.getId(), task);
         }
     }
@@ -212,8 +216,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         File file = new File(String.valueOf(path));
         FileBackedTaskManager backedTaskManager = new FileBackedTaskManager(file);
 
-        Task task1 = new Task("Просто задача - 1", "Описание простой задачи - 1",
-                LocalDateTime.of(2024, 10, 1, 10, 0), Duration.ofHours(2));
+        Task task1 = new Task("Просто задача - 1", "Описание простой задачи - 1");
         backedTaskManager.addNewTask(task1);
         Task task2 = new Task("Просто Задача - 2", "Описание простой задачи - 2",
                 LocalDateTime.of(2024, 10, 1, 1, 0), Duration.ofHours(2));
