@@ -7,26 +7,34 @@ import java.util.List;
 
 public class Epic extends Task {
 
-    private final List<Integer> subtaskIds = new ArrayList<>();
+    private List<Integer> subtaskIds;
     private LocalDateTime endTime;
 
     public Epic(int id, String title, String description, Status status) {
         super(id, title, description, status);
+        subtaskIds = new ArrayList<>();
     }
 
     public Epic(String title, String description) {
         super(title, description);
         this.status = Status.NEW;
+        subtaskIds = new ArrayList<>();
     }
 
     public Epic(int id, String title, String description, Status status, LocalDateTime startTime, Duration duration,
                 LocalDateTime endTime) {
         super(id, title, description, status, startTime, duration);
         this.endTime = endTime;
+        subtaskIds = new ArrayList<>();
     }
 
     public void addSubtaskId(int subtaskId) {
-        this.subtaskIds.add(subtaskId);
+        if (subtaskIds == null) {
+            subtaskIds = new ArrayList<>(); // Инициализация если не инициализировано при http запросах,н.п. при Insomnia
+        }
+        if (subtaskId > 0) {
+            this.subtaskIds.add(subtaskId);
+        }
     }
 
     public List<Integer> getSubtaskIds() {
