@@ -111,9 +111,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        /*if (inMemoryHistoryManager.getHistory().isEmpty() || inMemoryHistoryManager.getHistory() == null) {
-            throw new NotFoundException("История пуста!");
-        }*/
         return inMemoryHistoryManager.getHistory();
     }
 
