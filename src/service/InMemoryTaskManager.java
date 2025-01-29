@@ -111,9 +111,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        if (inMemoryHistoryManager.getHistory().isEmpty() || inMemoryHistoryManager.getHistory() == null) {
+        /*if (inMemoryHistoryManager.getHistory().isEmpty() || inMemoryHistoryManager.getHistory() == null) {
             throw new NotFoundException("История пуста!");
-        }
+        }*/
         return inMemoryHistoryManager.getHistory();
     }
 
@@ -335,10 +335,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     // проверка на пересечение
     protected void validateTaskPriority(Task task) {
-        if (task.getStartTime() != null) {
+        if (task.getStartTime() != null && task.getEndTime() != null) {
             boolean isValidate = sortedTaskByTime.stream()
                     .filter(sortedTask -> !sortedTask.equals(task))
-                    .anyMatch(sortedTask -> task.getStartTime().isBefore(sortedTask.getEndTime()) && task.getEndTime().isAfter(sortedTask.getStartTime()));
+                    .anyMatch(sortedTask -> sortedTask.getStartTime() != null && sortedTask.getEndTime() != null &&
+                            task.getStartTime().isBefore(sortedTask.getEndTime())
+                            && task.getEndTime().isAfter(sortedTask.getStartTime()));
             if (isValidate) {
                 System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");
                 throw new ManagerValidatePriority("Задача пересекается по времени с уже существующими. Её выполнение невозможно!");
