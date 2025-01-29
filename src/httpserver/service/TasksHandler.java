@@ -1,4 +1,4 @@
-package httpServer.service;
+package httpserver.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,8 +7,8 @@ import com.sun.net.httpserver.HttpExchange;
 import exception.InvalidTaskIdException;
 import exception.ManagerValidatePriority;
 import exception.NotFoundException;
-import httpServer.adapter.DurationAdapter;
-import httpServer.adapter.LocalDateTimeAdapter;
+import httpserver.adapter.DurationAdapter;
+import httpserver.adapter.LocalDateTimeAdapter;
 import model.Task;
 import service.TaskManager;
 

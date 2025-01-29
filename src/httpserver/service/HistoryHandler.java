@@ -1,21 +1,13 @@
-package httpServer.service;
+package httpserver.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.sun.net.httpserver.HttpExchange;
 import exception.InvalidTaskIdException;
 import exception.NotFoundException;
-import httpServer.adapter.DurationAdapter;
-import httpServer.adapter.LocalDateTimeAdapter;
-import model.Epic;
 import model.Task;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

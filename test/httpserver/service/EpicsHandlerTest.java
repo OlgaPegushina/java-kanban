@@ -1,4 +1,4 @@
-package httpServer.service;
+package httpserver.service;
 
 import com.google.gson.Gson;
 import model.Epic;
