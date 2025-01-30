@@ -1,6 +1,6 @@
 package service;
 
-import exception.ManagerValidatePriority;
+import exception.ManagerValidatePriorityException;
 import exception.NotFoundException;
 import model.Epic;
 import model.Status;
@@ -258,18 +258,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Subtask> getEpicSubtasks(int epicId) {
-        List<Subtask> epicSubtasks = new ArrayList<>();
         Epic epic = epics.get(epicId);
-        if (epic != null) {
-            epicSubtasks = epic.getSubtaskIds()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(subtasks::get)
-                    .collect(Collectors.toList());
-        } else {
+        if (epic == null) {
             throw new NotFoundException("Эпик с ID " + epicId + " не найден.");
         }
-        return epicSubtasks;
+        return epic.getSubtaskIds()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(subtasks::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private void updateStatusEpic(int epicId) {
@@ -340,7 +338,7 @@ public class InMemoryTaskManager implements TaskManager {
                             && task.getEndTime().isAfter(sortedTask.getStartTime()));
             if (isValidate) {
                 System.out.println("У задачи " + task + "\nневерно задано стартовое время или продолжительность!");
-                throw new ManagerValidatePriority("Задача пересекается по времени с уже существующими. Её выполнение невозможно!");
+                throw new ManagerValidatePriorityException("Задача пересекается по времени с уже существующими. Её выполнение невозможно!");
             }
         }
     }

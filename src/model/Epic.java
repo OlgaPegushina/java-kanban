@@ -30,7 +30,7 @@ public class Epic extends Task {
 
     public void addSubtaskId(int subtaskId) {
         if (subtaskIds == null) {
-            subtaskIds = new ArrayList<>(); // Инициализация если не инициализировано при http запросах,н.п. при Insomnia
+            subtaskIds = new ArrayList<>(); // Инициализация если не инициализировано при http запросах, н.п. при Insomnia
         }
         if (subtaskId > 0) {
             this.subtaskIds.add(subtaskId);

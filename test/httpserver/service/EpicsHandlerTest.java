@@ -54,7 +54,7 @@ public class EpicsHandlerTest {
                 Duration.ofHours(2), startTime1.plus(Duration.ofHours(2)));
         String taskJson = gson.toJson(epic1);
 
-        //устанавливаем ID в ручную для последующей проверки,
+        // устанавливаем ID в ручную для последующей проверки,
         // т.к. ID устанавливается непосредственно менеджерами, а не конструкторами.
         epic1.setId(1);
 

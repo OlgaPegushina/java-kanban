@@ -8,21 +8,17 @@ import model.Task;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class HistoryHandler extends TasksHandler {
+public class HistoryHandler extends PrioritizedHandler {
     public HistoryHandler(TaskManager taskManager) {
         super(taskManager);
     }
 
     @Override
-    protected void handleGet(String query, StringBuilder response, HttpExchange exchange) throws IOException {
+    protected void handleGet(StringBuilder response, HttpExchange exchange) throws IOException {
         try {
             List<Task> history = taskManager.getHistory();
-            if (history == null) {
-                history = new ArrayList<>();
-            }
             for (Task task : history) {
                 response.append(task.toString()).append("\n");
             }

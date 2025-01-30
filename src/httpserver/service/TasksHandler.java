@@ -4,8 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.sun.net.httpserver.HttpExchange;
+import exception.BadRequestException;
 import exception.InvalidTaskIdException;
-import exception.ManagerValidatePriority;
+import exception.ManagerValidatePriorityException;
 import exception.NotFoundException;
 import httpserver.adapter.DurationAdapter;
 import httpserver.adapter.LocalDateTimeAdapter;
@@ -51,10 +52,10 @@ public class TasksHandler extends BaseHttpHandler {
                     handlePost(exchange, response);
                     break;
                 case "PUT":
-                    handlePut(exchange, response);
+                    handlePut(query, exchange, response);
                     break;
                 case "DELETE":
-                    handleDelete(exchange, response);
+                    handleDelete(query, exchange, response);
                     break;
                 default:
                     sendUnsupportedMethod(response, exchange);
@@ -78,7 +79,7 @@ public class TasksHandler extends BaseHttpHandler {
                     response.append(task.toString()).append("\n");
                 }
             } else {
-                int taskId = getTaskIdFromRequest(exchange);
+                int taskId = getTaskIdFromRequest(query);
                 Task task = taskManager.getTask(taskId);
                 response.append(task.toString());
             }
@@ -101,31 +102,32 @@ public class TasksHandler extends BaseHttpHandler {
                 response.append("Задача с ID ").append(taskId).append(" успешно обновлена.");
             }
             sendText(exchange, response.toString(), 201);
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | BadRequestException e) {
             handleErrorResponse(e, response, 400, exchange);
-        } catch (ManagerValidatePriority e) {
+        } catch (ManagerValidatePriorityException e) {
             handleErrorResponse(e, response, 406, exchange);
         }
     }
 
-    protected void handlePut(HttpExchange exchange, StringBuilder response) throws IOException {
+    protected void handlePut(String query, HttpExchange exchange, StringBuilder response) throws IOException {
         try {
-            int taskId = getTaskIdFromRequest(exchange);
+            int taskId = getTaskIdFromRequest(query);
             Task updatedTask = readTaskFromRequest(exchange);
             updatedTask.setId(taskId);
             taskManager.updateTask(updatedTask);
             response.append("Задача с ID ").append(taskId).append(" успешно обновлена.");
             sendText(exchange, response.toString(), 201);
-        } catch (JsonParseException | InvalidTaskIdException | IllegalArgumentException | URISyntaxException e) {
+        } catch (JsonParseException | InvalidTaskIdException | IllegalArgumentException | URISyntaxException
+                 | BadRequestException e) {
             handleErrorResponse(e, response, 400, exchange);
-        } catch (ManagerValidatePriority e) {
+        } catch (ManagerValidatePriorityException e) {
             handleErrorResponse(e, response, 406, exchange);
         }
     }
 
-    protected void handleDelete(HttpExchange exchange, StringBuilder response) throws IOException {
+    protected void handleDelete(String query, HttpExchange exchange, StringBuilder response) throws IOException {
         try {
-            int taskIdToDelete = getTaskIdFromRequest(exchange);
+            int taskIdToDelete = getTaskIdFromRequest(query);
             taskManager.deleteTask(taskIdToDelete);
             response.append("Задача с ID: ").append(taskIdToDelete).append(" удалена.");
             sendText(exchange, response.toString(), 200);
@@ -134,16 +136,18 @@ public class TasksHandler extends BaseHttpHandler {
         }
     }
 
-    protected Task readTaskFromRequest(HttpExchange exchange) throws IOException {
+    protected Task readTaskFromRequest(HttpExchange exchange) {
         InputStream inputStream = exchange.getRequestBody();
         String requestBody = new BufferedReader(new InputStreamReader(inputStream))
                 .lines().collect(Collectors.joining("\n"));
+        // Проверка на пустое тело запроса
+        if (requestBody.isEmpty()) {
+            throw new BadRequestException("Ошибка: тело запроса не может быть пустым.");
+        }
         return gson.fromJson(requestBody, Task.class);
     }
 
-    protected int getTaskIdFromRequest(HttpExchange exchange) throws URISyntaxException {
-        URI requestURI = exchange.getRequestURI();
-        String query = requestURI.getQuery();
+    protected int getTaskIdFromRequest(String query) throws URISyntaxException {
         if (query != null && query.startsWith("id=")) {
             String[] params = query.split("=");
             if (params.length == 2) {

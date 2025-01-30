@@ -2,8 +2,9 @@ package httpserver.service;
 
 import com.google.gson.JsonParseException;
 import com.sun.net.httpserver.HttpExchange;
+import exception.BadRequestException;
 import exception.InvalidTaskIdException;
-import exception.ManagerValidatePriority;
+import exception.ManagerValidatePriorityException;
 import exception.NotFoundException;
 import model.Epic;
 import service.TaskManager;
@@ -30,7 +31,7 @@ public class EpicsHandler extends TasksHandler {
                     response.append(task.toString()).append("\n");
                 }
             } else {
-                int taskId = getTaskIdFromRequest(exchange);
+                int taskId = getTaskIdFromRequest(query);
                 Epic task = taskManager.getEpic(taskId);
 
                 if (query.contains("/subtasks")) {
@@ -58,33 +59,34 @@ public class EpicsHandler extends TasksHandler {
                 response.append("Задача успешно добавлена с ID: ").append(taskId);
                 sendText(exchange, response.toString(), 201);
             }
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | BadRequestException e) {
             handleErrorResponse(e, response, 400, exchange);
-        } catch (ManagerValidatePriority e) {
+        } catch (ManagerValidatePriorityException e) {
             handleErrorResponse(e, response, 406, exchange);
         }
     }
 
     @Override
-    protected void handlePut(HttpExchange exchange, StringBuilder response) throws IOException {
+    protected void handlePut(String query, HttpExchange exchange, StringBuilder response) throws IOException {
         try {
-            int taskId = getTaskIdFromRequest(exchange);
+            int taskId = getTaskIdFromRequest(query);
             Epic updatedTask = readTaskFromRequest(exchange);
             updatedTask.setId(taskId);
             taskManager.updateEpic(updatedTask);
             response.append("Задача с ID ").append(taskId).append(" успешно обновлена.");
             sendText(exchange, response.toString(), 201);
-        } catch (JsonParseException | InvalidTaskIdException | IllegalArgumentException | URISyntaxException e) {
+        } catch (JsonParseException | InvalidTaskIdException | IllegalArgumentException | URISyntaxException
+                 | BadRequestException e) {
             handleErrorResponse(e, response, 400, exchange);
-        } catch (ManagerValidatePriority e) {
+        } catch (ManagerValidatePriorityException e) {
             handleErrorResponse(e, response, 406, exchange);
         }
     }
 
     @Override
-    protected void handleDelete(HttpExchange exchange, StringBuilder response) throws IOException {
+    protected void handleDelete(String query, HttpExchange exchange, StringBuilder response) throws IOException {
         try {
-            int taskIdToDelete = getTaskIdFromRequest(exchange);
+            int taskIdToDelete = getTaskIdFromRequest(query);
             taskManager.deleteEpic(taskIdToDelete);
             response.append("Задача с ID: ").append(taskIdToDelete).append(" удалена.");
             sendText(exchange, response.toString(), 200);
@@ -94,10 +96,14 @@ public class EpicsHandler extends TasksHandler {
     }
 
     @Override
-    protected Epic readTaskFromRequest(HttpExchange exchange) throws IOException {
+    protected Epic readTaskFromRequest(HttpExchange exchange) {
         InputStream inputStream = exchange.getRequestBody();
         String requestBody = new BufferedReader(new InputStreamReader(inputStream))
                 .lines().collect(Collectors.joining("\n"));
+        // Проверка на пустое тело запроса
+        if (requestBody.isEmpty()) {
+            throw new BadRequestException("Ошибка: тело запроса не может быть пустым.");
+        }
         return gson.fromJson(requestBody, Epic.class);
     }
 }

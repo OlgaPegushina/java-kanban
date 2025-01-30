@@ -1,6 +1,6 @@
 package service;
 
-import exception.ManagerValidatePriority;
+import exception.ManagerValidatePriorityException;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -179,8 +179,8 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
 
         taskManager.deleteSubtask(subtaskId);
 
-        assertTrue(taskManager.getAllSubtasks().isEmpty(), "Подзадача не удалилася");
-        assertEquals(0, taskManager.getAllSubtasks().size(), "Подзадача не удалилася");
+        assertTrue(taskManager.getAllSubtasks().isEmpty(), "Подзадача не удалилась");
+        assertEquals(0, taskManager.getAllSubtasks().size(), "Подзадача не удалилась");
         assertTrue(epic.getSubtaskIds().isEmpty(), "ID подзадачи не удалился из списка у эпика");
     }
 
@@ -192,13 +192,13 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         taskManager.addNewSubtask(subtask);
         taskManager.deleteAllSubtasks();
 
-        assertTrue(taskManager.getAllSubtasks().isEmpty(), "Подзадачи не удалилися");
-        assertEquals(0, taskManager.getAllSubtasks().size(), "Подзадачи не удалилися");
+        assertTrue(taskManager.getAllSubtasks().isEmpty(), "Подзадачи не удалились");
+        assertEquals(0, taskManager.getAllSubtasks().size(), "Подзадачи не удалились");
     }
 
     @Test
     void updateStatusEpicTest() {
-        final int epicId = taskManager.addNewEpic(epic);
+        taskManager.addNewEpic(epic); // необходимо для установки id
 
         assertEquals(Status.NEW, epic.getStatus(), "Неверный статус NEW");
 
@@ -225,9 +225,7 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
                 1, 11, 0), Duration.ofHours(1));
 
         taskManager.addNewTask(task1);
-        Exception exception = assertThrows(ManagerValidatePriority.class, () -> {
-            taskManager.addNewTask(task2);
-        });
+        Exception exception = assertThrows(ManagerValidatePriorityException.class, () -> taskManager.addNewTask(task2));
 
         assertEquals("Задача пересекается по времени с уже существующими. Её выполнение невозможно!",
                 exception.getMessage());
@@ -244,9 +242,7 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         Subtask subtask2 = new Subtask("Подзадача - 1",
                 "Описание подзадачи - 1, эпической задачи - 1", LocalDateTime.of(2024, 10,
                 1, 11, 0), Duration.ofHours(1), epic.getId());
-        Exception exception = assertThrows(ManagerValidatePriority.class, () -> {
-            taskManager.addNewSubtask(subtask2);
-        });
+        Exception exception = assertThrows(ManagerValidatePriorityException.class, () -> taskManager.addNewSubtask(subtask2));
 
         assertEquals("Задача пересекается по времени с уже существующими. Её выполнение невозможно!",
                 exception.getMessage());

@@ -8,35 +8,56 @@ import model.Task;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.TreeSet;
 
-public class PrioritizedHandler extends TasksHandler {
+public class PrioritizedHandler extends BaseHttpHandler {
+    protected final TaskManager taskManager;
+
     public PrioritizedHandler(TaskManager taskManager) {
-        super(taskManager);
+        this.taskManager = taskManager;
     }
 
     @Override
-    protected void handleGet(String query, StringBuilder response, HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
+        StringBuilder response = new StringBuilder();
+        try {
+            String method = exchange.getRequestMethod();
+            if (method.equals("GET")) {
+                handleGet(response, exchange);
+            } else {
+                sendUnsupportedMethod(response, exchange);
+            }
+        } catch (NotFoundException e) {
+            sendText(exchange, e.getMessage(), 404);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendText(exchange, "500 Internal Server Error", 500);
+        } finally {
+            exchange.close();
+        }
+    }
+
+    protected void handleGet(StringBuilder response, HttpExchange exchange) throws IOException {
         try {
             Set<Task> sortedTaskByTime = taskManager.getPrioritizedTasks();
-            if (sortedTaskByTime == null) {
-                sortedTaskByTime = new TreeSet<>((task1, task2) -> {
-                    LocalDateTime startTime1 = task1.getStartTime();
-                    LocalDateTime startTime2 = task2.getStartTime();
-                    return 0;
-                });
-            }
             for (Task task : sortedTaskByTime) {
                 response.append(task.toString()).append("\n");
             }
-
             sendText(exchange, response.toString(), 200);
         } catch (JsonParseException | InvalidTaskIdException | IllegalArgumentException e) {
             handleErrorResponse(e, response, 400, exchange);
         } catch (NotFoundException e) {
             handleErrorResponse(e, response, 404, exchange);
         }
+    }
+
+    protected void handleErrorResponse(Exception e, StringBuilder response, int statusCode, HttpExchange exchange) throws IOException {
+        response.append(e.getMessage());
+        sendText(exchange, response.toString(), statusCode);
+    }
+
+    protected void sendUnsupportedMethod(StringBuilder response, HttpExchange exchange) throws IOException {
+        response.append("Метод не поддерживается.");
+        sendText(exchange, response.toString(), 405);
     }
 }

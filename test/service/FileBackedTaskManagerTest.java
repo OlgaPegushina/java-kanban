@@ -96,9 +96,7 @@ public class FileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBacke
         Path path2 = Paths.get("file_test.csv");
         File file2 = new File(String.valueOf(path2));
         FileBackedTaskManager taskManager2 = new FileBackedTaskManager(file2);
-        Exception exception = assertThrows(ManagerSaveException.class, () -> {
-            taskManager2.addNewTask(task);
-        });
+        Exception exception = assertThrows(ManagerSaveException.class, () -> taskManager2.addNewTask(task));
         assertEquals("Файл для записи не существует!",
                 exception.getMessage());
     }
@@ -107,9 +105,7 @@ public class FileBackedTaskManagerTest extends AbstractTaskManagerTest<FileBacke
     public void loadFileTest() {
         Path path2 = Paths.get("file_test.csv");
         File file2 = new File(String.valueOf(path2));
-        Exception exception = assertThrows(ManagerLoadException.class, () -> {
-            FileBackedTaskManager.loadFromFile(file2);
-        });
+        Exception exception = assertThrows(ManagerLoadException.class, () -> FileBackedTaskManager.loadFromFile(file2));
         assertEquals("Файл для чтения не существует!",
                 exception.getMessage());
     }

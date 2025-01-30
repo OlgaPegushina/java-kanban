@@ -29,7 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager backedTaskManager = new FileBackedTaskManager(fileAutoSave);
 
         try (BufferedReader reader = Files.newBufferedReader(fileAutoSave.toPath())) {
-            String line = reader.readLine();
+            String line = reader.readLine(); // пропускаем первую строку с заголовками
             while (reader.ready()) {
                 line = reader.readLine();
                 if (line.isBlank()) {
